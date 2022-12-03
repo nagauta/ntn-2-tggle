@@ -1,7 +1,14 @@
-const { Client } = require("@notionhq/client")
+"use strict";
 require('dotenv').config();
+async function main() {
+    const NotionTaskAgent = require('./notionTaskAgent')
+    const TogglAgent = require('./togglAgent')
 
-// Initializing a client
-const notion = new Client({
-  auth: process.env.NOTION_TOKEN,
-});
+    const ntnTskAgnt = new NotionTaskAgent();
+    const togglAgent = new TogglAgent();
+    let ret = await ntnTskAgnt.getProjects();
+    console.log(`${JSON.stringify(ret)}`);
+
+    togglAgent.syncProjects(ret);
+}
+main();
