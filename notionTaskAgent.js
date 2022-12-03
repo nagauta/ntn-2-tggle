@@ -47,15 +47,15 @@ module.exports = class NotionTaskAgent {
         for (const p in achievement_pages.results) {
             if (Object.hasOwnProperty.call(achievement_pages.results, p)) {
                 try {
-                    const start = achievement_pages.results[p].properties.実績日.date?.start
-                    const end = achievement_pages.results[p].properties.実績日.date?.end
+                    const start = achievement_pages.results[p].properties.実績日時.date?.start
+                    const end = achievement_pages.results[p].properties.実績日時.date?.end
                     const relationId = achievement_pages.results[p]["properties"]["tasks"]["relation"][0]["id"];
                     if(start === undefined || end === undefined){
-                        console.log(`実績日なし : ${relationId}`);
+                        console.log(`実績日時なし : ${relationId}`);
                         continue;
                     }
-                    const startDate = new Date(achievement_pages.results[p].properties.実績日.date?.start)
-                    const endDate = new Date(achievement_pages.results[p].properties.実績日.date?.end)
+                    const startDate = new Date(achievement_pages.results[p].properties.実績日時.date?.start)
+                    const endDate = new Date(achievement_pages.results[p].properties.実績日時.date?.end)
                     if (relationId === undefined) {
                         console.log(`got undefined projects`);
                     }
