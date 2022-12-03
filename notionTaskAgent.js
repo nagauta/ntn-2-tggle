@@ -29,9 +29,16 @@ module.exports = class NotionTaskAgent {
         }
         return projects;
     }
-    async getAchivementsToday() {
+    async getAchivements(date) {
         const achievement_pages = await notion.databases.query(
-            { database_id: process.env.NOTION_ACIEVEMENTS_DB_ID }
+            { database_id: process.env.NOTION_ACIEVEMENTS_DB_ID ,
+                filter: {
+                    property: "見積もり日時",
+                    date:{
+                        equals:date
+                    }
+                  },
+                },
         );
         const tasks_pages = await notion.databases.query(
             { database_id: process.env.NOTION_TASKS_DB_ID }
