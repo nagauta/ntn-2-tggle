@@ -1,7 +1,9 @@
 "use strict";
 require('dotenv').config();
+const {DateTime} = require("luxon")
 const TogglClient = require('toggl-api');
 const TogglProject = require('./tggleProject');
+const TimeEntrie = require('./timeEntrie');
 const toggl = new TogglClient({ apiToken: process.env.TOGGL_TRACK_TOKEN });
 /**
  * Toggleタスク周りの操作を行う
@@ -56,8 +58,36 @@ module.exports = class TogglAgent {
         });
 
     }
-    getAchivements(startDate, endDate) {
+    async getTimeEntries(date) {
+        return await new Promise((resolve, reject) => {
+            const startDate = DateTime.fromISO(date);
+            const endDate = (startDate.plus({ days: 1 }).minus({seconds: 1}));
+            toggl.getTimeEntries(startDate.toISO(), endDate.toISO(), function (err, ret) {
+                const tes = [];
+                for (const te of ret) {
+                    tes.push(new TimeEntrie(te["description"], te["start"], te["wid"], te["pid"], te["id"]));
+                }
+                resolve(tes);
+            });
+        });
         return []
+    }
+    async deleteTimeEntries(timeEntries){
+        return await new Promise((resolve, reject) => {
+            const deleteIds = []
+            for (const te of timeEntries) {
+                deleteIds.push(this.deleteTimeEntrie(te.id));
+            }
+            resolve(deleteIds);
+        });
+    }
+    async deleteTimeEntrie(timeEntrieId){
+        return await new Promise((resolve, reject) => {
+            toggl.deleteTimeEntry(timeEntrieId, function (err, ret) {
+                console.log(`ret ${ret}`);
+                resolve(ret);
+            });
+        });
     }
     async syncAchivements(achivements){
         const ret = [];
