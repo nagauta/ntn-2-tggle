@@ -1,0 +1,15 @@
+@startuml 1. プロジェクトの同期
+hide footbox
+title 1. sync projects
+app -> Notion: プロジェクトを取得する
+Notion --> app: プロジェクトを返す
+app -> Toggl: プロジェクト(Togglに存在しない)を送信する
+@enduml
+
+@startuml 2. 実績の同期
+hide footbox
+title 2. sync achivements
+app -> Notion: 今日の実績を取得する
+Notion --> app: 実績を返す
+app -> Toggl: 実績を登録する
+@enduml
