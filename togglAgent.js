@@ -1,5 +1,7 @@
 "use strict";
+require('dotenv').config();
 const TogglClient = require('toggl-api');
+const TogglProject = require('./tggleProject');
 const toggl = new TogglClient({ apiToken: process.env.TOGGL_TRACK_TOKEN });
 /**
  * Toggleタスク周りの操作を行う
@@ -15,8 +17,10 @@ module.exports = class TogglAgent {
                 const pjs = [];
                 for (const pj in ret) {
                     if (Object.hasOwnProperty.call(ret, pj)) {
-                        const e = ret[pj]["name"];
-                        pjs.push(e);
+                        const id = ret[pj]["id"];
+                        const name = ret[pj]["name"];
+                        const togglProject = new TogglProject(id, name);
+                        pjs.push(togglProject);
                     }
                 }
                 resolve(pjs);
@@ -29,7 +33,7 @@ module.exports = class TogglAgent {
         console.log(`notion Pjs ${pjs}`);
         for (const pj of pjs) {
             console.log(`is ${pj} in is ...  ${tgglPjs.includes(pj)}`);
-            if (!tgglPjs.includes(pj)) {
+            if (!tgglPjs.some(tPj => tPj.name === pj)) {
                 this.addPj(pj);
             }
         }
@@ -55,7 +59,30 @@ module.exports = class TogglAgent {
     getAchivements(startDate, endDate) {
         return []
     }
-    updateAchivement(achivement) {
-
+    async syncAchivements(achivements){
+        const ret = [];
+        for (const achivement of achivements) {
+            ret.push(await this.syncAchivement(achivement));
+        }
+        return ret;
+    }
+    async syncAchivement(achivement) {
+        const tgglPjs = await this.getProjects();
+        const tgglPj = tgglPjs.find(pj => pj.name === achivement.projectName);
+        const duration = (achivement.endDate - achivement.startDate) / (1000)
+        const data = {
+            "description": achivement.taskName,
+            "wid": process.env.TOGGL_TRACK_WORKSPACE_ID,
+            "duration": duration,
+            "start": achivement.startDate,
+            "pid":tgglPj.id
+        };
+        return await new Promise((resolve, reject) => {
+            toggl.createTimeEntry(data, function (err, ret) {
+                console.log(ret);
+                console.log(`added ${JSON.stringify(ret)}`);
+                resolve(true);
+            })
+        });
     }
 }
