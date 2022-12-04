@@ -1,9 +1,11 @@
 "use strict";
-require('dotenv').config();
 const {DateTime} = require("luxon")
 const TogglClient = require('toggl-api');
 const TogglProject = require('./tggleProject');
 const TimeEntrie = require('./timeEntrie');
+
+console.log(`process.env.TOGGL_TRACK_TOKEN ${process.env.TOGGL_TRACK_TOKEN}`);
+
 const toggl = new TogglClient({ apiToken: process.env.TOGGL_TRACK_TOKEN });
 /**
  * Toggleタスク周りの操作を行う
